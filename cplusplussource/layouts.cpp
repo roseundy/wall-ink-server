@@ -7,6 +7,180 @@ extern GFXcanvas1* canvas;
 extern uint16_t x_res;
 extern uint16_t y_res;
 
+void drawRoomDate(std::string roomName, std::string date, std::string displayUrl, std::string qrCodeString, bool drawQR) { 
+    canvas->setFont(&FreeSansBold18pt7b);
+
+    //draw room name
+    drawFancyString(roomName, 15, 45);
+
+    //draw date
+    canvas->setFont(&FreeSansBold12pt7b);
+    drawFancyString(fancyDateFromYYYY_MM_DD(date), 15, 80);
+
+    //draw rectangle to emphasize title block
+    drawRect(0,0,9,98,3);
+
+    if (drawQR) {
+       //draw line under date
+       canvas->setFont(&FreeSansBold9pt7b);
+       drawRect(9,95,x_res-9,3,1);
+       drawRect(x_res-36-getTextWidth(displayUrl)-12,95,getTextWidth(displayUrl)+12,3,0);
+
+       //draw base scheduling url
+       drawFancyString(displayUrl,x_res-43 - getTextWidth(displayUrl),100);
+
+       int s = getQrCodeSize(qrCodeString);
+       putQrCode(x_res-10-2*s,44-s,qrCodeString, 2);
+    } else {
+       drawRect(9,95,x_res-9,3,1);
+    }
+}
+
+void drawTimeBlocks(std::string* reservations, int currentBlock, bool drawArrow) {
+
+    int block_w = x_res / 32;
+    int hour_w = block_w * 2;
+
+    //draw times
+    canvas->setFont(&FreeSansBold9pt7b);
+    for (int hour = 7; hour < 22; hour++) {
+        std::stringstream hourString;
+        if (hour < 13)
+            hourString << hour;
+        else
+            hourString << hour-12;
+        if (hourString.str().length() == 1)
+            drawFancyString(hourString.str(), (hour-6)*hour_w - 5 , y_res-6);
+        else
+            drawFancyString(hourString.str(), (hour-6)*hour_w - 11, y_res-6);
+    }
+
+    //draw blocks
+    for (int block = 0; block < 32; block++) {
+        drawRect(block*block_w, y_res-47, block_w, 22, 1);
+        if (reservations[block].compare("Available") == 0) {
+            //eliminate vertical lines
+            drawRect(block*block_w, y_res-45, block_w, 18, 0);
+        }
+    }
+
+    //put rounded corners on ends
+    drawRect(0, y_res-45, 2, 18, 1);
+    drawRect(0, y_res-47, 1, 2, 0);
+    drawRect(1, y_res-47, 1, 1, 0);
+    drawRect(2, y_res-45, 1, 1, 1);
+    drawRect(0, y_res-27, 1, 2, 0);
+    drawRect(1, y_res-26, 1, 1, 0);
+    drawRect(2, y_res-28, 1, 1, 1);
+
+    drawRect(x_res-2, y_res-45, 2, 18, 1);
+    drawRect(x_res-1, y_res-47, 1, 2, 0);
+    drawRect(x_res-2, y_res-47, 1, 1, 0);
+    drawRect(x_res-3, y_res-45, 1, 1, 1);
+    drawRect(x_res-1, y_res-27, 1, 2, 0);
+    drawRect(x_res-2, y_res-26, 1, 1, 0);
+    drawRect(x_res-3, y_res-28, 1, 1, 1);
+
+    //round corners if edge case
+    for (int block = 0; block < 32; block++) {
+        if (reservations[block].compare("Available") == 0) {
+            if (block > 0) {
+                if (reservations[block-1].compare("Available") != 0) {
+                    drawRect(block*block_w - 4, y_res-47, 5, 2, 0);
+                    drawRect(block*block_w,     y_res-46, 1, 1, 1);
+                    drawRect(block*block_w - 4, y_res-46, 1, 1, 1);
+                    drawRect(block*block_w - 4, y_res-27, 5, 2, 0);
+                    drawRect(block*block_w,     y_res-27, 1, 1, 1);
+                    drawRect(block*block_w - 4, y_res-27, 1, 1, 1);
+                    drawRect(block*block_w - 2, y_res-47, 1, 22, 0);
+                    drawRect(block*block_w,     y_res-45, 1, 18, 1);
+                    drawRect(block*block_w + 1, y_res-45, 1, 1, 1);
+                    drawRect(block*block_w + 1, y_res-28, 1, 1, 1);
+                }
+            }
+            if (block < 31) {
+                if (reservations[block+1].compare("Available") != 0) {
+                    drawRect(block*block_w + block_w-1, y_res-47, 5, 2, 0);
+                    drawRect(block*block_w + block_w-1, y_res-46, 1, 1, 1);
+                    drawRect(block*block_w + block_w+3, y_res-46, 1, 1, 1);
+                    drawRect(block*block_w + block_w-1, y_res-27, 5, 2, 0);
+                    drawRect(block*block_w + block_w-1, y_res-27, 1, 1, 1);
+                    drawRect(block*block_w + block_w+3, y_res-27, 1, 1, 1);
+                    drawRect(block*block_w + block_w+1, y_res-47, 1, 22, 0);
+                    drawRect(block*block_w + block_w-1, y_res-45, 1, 18, 1);
+                    drawRect(block*block_w + block_w-2, y_res-45, 1, 1, 1);
+                    drawRect(block*block_w + block_w-2, y_res-28, 1, 1, 1);
+                }
+            }
+        } else {
+            if (block > 0) {
+                if (reservations[block-1].compare(reservations[block]) != 0 && reservations[block-1].compare("Available") != 0) {
+                    drawRect(block*block_w - 2, y_res-47, 5, 2, 0);
+                    drawRect(block*block_w + 2, y_res-46, 1, 1, 1);
+                    drawRect(block*block_w - 2, y_res-46, 1, 1, 1);
+                    drawRect(block*block_w - 2, y_res-27, 5, 2, 0);
+                    drawRect(block*block_w + 2, y_res-27, 1, 1, 1);
+                    drawRect(block*block_w - 2, y_res-27, 1, 1, 1);
+                    drawRect(block*block_w,     y_res-47, 1, 22, 0);
+                }
+            }
+        }
+    }
+
+    //draw arrow
+    if (drawArrow) {
+       drawRect(currentBlock*block_w, y_res-49, 2, 1, 1);
+       drawRect(currentBlock*block_w - 1, y_res-50, 4, 1, 1);
+       drawRect(currentBlock*block_w - 2, y_res-51, 6, 1, 1);
+       drawRect(currentBlock*block_w - 3, y_res-53, 8, 2, 1);
+
+       //draw time above the arrow
+       //canvas->setFont(&FreeSansBold9pt7b);
+       //drawFancyString(militaryTimeToNormalPersonTime(reservationBlockToTime(currentBlock-currentBlock%2)), (currentBlock-currentBlock%2)*block_w - 30, 326);
+    }
+}
+
+int getCurrentBlock (std::string time) {
+    int currentBlock;
+
+    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
+    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
+    if (currentBlock < 0)
+        currentBlock = 0;
+    if (currentBlock > 31)
+        currentBlock = 31;
+
+    return currentBlock;
+}
+
+int getCurrentEvent (std::vector<reservation> reservs, int currentBlock) {
+    int currentEventIndex = 0;
+    for (int i = 0; i < reservs.size(); i++) {
+        if (currentBlock >= reservs.at(i).startBlock && currentBlock <= reservs.at(i).endBlock)
+            currentEventIndex = i;
+    }
+    return currentEventIndex;
+}
+
+void drawCurrentEvent(std::vector<reservation> reservs, int currentBlock, int currentEventIndex) {
+    std::string currentEventTime = militaryTimeToNormalPersonTime(reservationBlockToTime(currentBlock)) + " - " + militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex).endBlock));
+    canvas->setFont(&FreeSansBold18pt7b);
+    drawFancyString(currentEventTime, 15, 142);
+    canvas->setFont(&FreeSans18pt7b);
+    drawFancyString(reservs.at(currentEventIndex).title, 15, 178);
+}
+
+void drawNextEvent(std::vector<reservation> reservs, int currentBlock, int currentEventIndex) {
+    if (reservs.size() > currentEventIndex+1) {
+        std::string nextEventTime = militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex+1).startBlock)) + " - " + militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex+1).endBlock));
+	canvas->setFont(&FreeSansBold12pt7b);
+	drawFancyString(nextEventTime, 15, 221);
+	canvas->setFont(&FreeSans12pt7b);
+	drawFancyString(reservs.at(currentEventIndex+1).title, 15, 251);
+    }
+}
+
+
 //portrait 7"
 void drawImage0(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive) {
     //set sleepTime
@@ -142,13 +316,7 @@ void drawImage1(std::string roomName, std::string date, std::string time, std::s
     drawRect(0,62,x_res,2,1);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
 
     //Get current event
     std::string currentTitle = reservations[currentBlock];
@@ -188,168 +356,27 @@ void drawImage2(std::string roomName, std::string date, std::string time, std::s
     //set sleepTime
     setSleepTime(900, daylightSavingsActive);
 
-    canvas->setFont(&FreeSans24pt7b);
     canvas->setTextColor(1);
     canvas->setTextWrap(false);
 
-    //draw room name
-    if (!drawCenteredString(roomName + " Reservations", 45)) {
-        if (!drawCenteredString(roomName, 45)) {
-            canvas->setFont(&FreeSans18pt7b);
-            if (!drawCenteredString(roomName + " Reservations", 42)) {
-                if (!drawCenteredString(roomName, 42)) {
-                    canvas->setFont(&FreeSans12pt7b);
-                    if (!drawCenteredString(roomName + " Reservations", 39)) {
-                        if (!drawCenteredString(roomName, 39)) {
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    //draw date
-    canvas->setFont(&FreeSans18pt7b);
-    drawCenteredString(fancyDateFromYYYY_MM_DD(date), 85);
-
-    //draw line under date
-    drawRect(0,95,x_res,1,1);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, false);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
+
+    //parse reservations
+    std::vector<reservation> reservs = parseReservations(reservations);
 
     //Get current event
-    std::string currentTitle = reservations[currentBlock];
-    std::string currentStart = reservationBlockToTime(currentBlock);
-    int blockNextStart = currentBlock;
-    while (currentTitle.compare(reservations[++blockNextStart]) == 0 && blockNextStart < 32) {}
-    std::string currentEnd = reservationBlockToTime(blockNextStart);
+    int currentEventIndex = getCurrentEvent(reservs, currentBlock);
     
     //Draw current event
-    std::string currentEventTime = militaryTimeToNormalPersonTime(currentStart) + " - " + militaryTimeToNormalPersonTime(currentEnd);
-    canvas->setFont(&FreeSansBold18pt7b);
-    drawFancyString(currentEventTime, 8, 130);
-    canvas->setFont(&FreeSans18pt7b);
-    drawFancyString(currentTitle, 8, 170);
+    drawCurrentEvent(reservs, currentBlock, currentEventIndex);
 
-    //Get next event
-    if (blockNextStart < 31) {
-        std::string nextTitle = reservations[blockNextStart];
-        std::string nextStart = reservationBlockToTime(blockNextStart);
-		int blockNextEnd = blockNextStart;
-		while (nextTitle.compare(reservations[++blockNextEnd]) == 0 && blockNextEnd < 32) {}
-        std::string nextEnd = reservationBlockToTime(blockNextEnd);
+    //Draw next event
+    drawNextEvent(reservs, currentBlock, currentEventIndex);
 
-		//Draw next event
-        std::string nextEventTime = militaryTimeToNormalPersonTime(nextStart) + " - " + militaryTimeToNormalPersonTime(nextEnd);
-		canvas->setFont(&FreeSansBold12pt7b);
-		drawFancyString(nextEventTime, 9, 250);
-		canvas->setFont(&FreeSans12pt7b);
-		drawFancyString(nextTitle, 8, 280);
-    }
-
-    //draw times
-    canvas->setFont(&FreeSansBold9pt7b);
-    for (int hour = 7; hour < 22; hour++) {
-        std::stringstream hourString;
-        if (hour < 13)
-            hourString << hour;
-        else
-            hourString << hour-12;
-        if (hourString.str().length() == 1)
-            drawFancyString(hourString.str(), hour*40 - 245, 378);
-        else
-            drawFancyString(hourString.str(), hour*40 - 249, 378);
-    }
-
-    //draw blocks
-    for (int block = 0; block < 32; block++) {
-        drawRect(block*20, 337, 20, 22, 1);
-        if (reservations[block].compare("Available") == 0) {
-            //drawRect(block*20 + 1, 324, 18, 33, 0);
-            //eliminate vertical lines
-            drawRect(block*20, 339, 20, 18, 0);
-
-            //put rounded corners on ends
-            drawRect(0, 339, 2, 18, 1);
-            drawRect(0, 337, 1, 2, 0);
-            drawRect(1, 337, 1, 1, 0);
-            drawRect(2, 339, 1, 1, 1);
-            drawRect(0, 357, 1, 2, 0);
-            drawRect(1, 358, 1, 1, 0);
-            drawRect(2, 356, 1, 1, 1);
-
-            drawRect(638, 339, 2, 18, 1);
-            drawRect(639, 337, 1, 2, 0);
-            drawRect(638, 337, 1, 1, 0);
-            drawRect(637, 339, 1, 1, 1);
-            drawRect(639, 357, 1, 2, 0);
-            drawRect(638, 358, 1, 1, 0);
-            drawRect(637, 356, 1, 1, 1);
-        }
-    }
-
-    //round corners if edge case
-    for (int block = 0; block < 32; block++) {
-        if (reservations[block].compare("Available") == 0) {
-            if (block > 0) {
-                if (reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 4, 337, 5, 2, 0);
-                    drawRect(block*20, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 5, 2, 0);
-                    drawRect(block*20, 357, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 337, 1, 22, 0);
-                    drawRect(block*20, 339, 1, 18, 1);
-                    drawRect(block*20 + 1, 339, 1, 1, 1);
-                    drawRect(block*20 + 1, 356, 1, 1, 1);
-                }
-            }
-            if (block < 31) {
-                if (reservations[block+1].compare("Available") != 0) {
-                    drawRect(block*20 + 19, 337, 5, 2, 0);
-                    drawRect(block*20 + 19, 338, 1, 1, 1);
-                    drawRect(block*20 + 23, 338, 1, 1, 1);
-                    drawRect(block*20 + 19, 357, 5, 2, 0);
-                    drawRect(block*20 + 19, 357, 1, 1, 1);
-                    drawRect(block*20 + 23, 357, 1, 1, 1);
-                    drawRect(block*20 + 21, 337, 1, 22, 0);
-                    drawRect(block*20 + 19, 339, 1, 18, 1);
-                    drawRect(block*20 + 18, 339, 1, 1, 1);
-                    drawRect(block*20 + 18, 356, 1, 1, 1);
-                }
-            }
-        } else {
-            if (block > 0) {
-                if (reservations[block-1].compare(reservations[block]) != 0 && reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 2, 337, 5, 2, 0);
-                    drawRect(block*20 + 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 5, 2, 0);
-                    drawRect(block*20 + 2, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 1, 1, 1);
-                    drawRect(block*20, 337, 1, 22, 0);
-                }
-            }
-        }
-    }
-
-    //draw arrow drawRect((currentBlock-currentBlock%2)*20 - 1, 335, 2, 1, 1);
-    drawRect((currentBlock-currentBlock%2)*20 - 2, 334, 4, 1, 1);
-    drawRect((currentBlock-currentBlock%2)*20 - 3, 333, 6, 1, 1);
-    drawRect((currentBlock-currentBlock%2)*20 - 4, 331, 8, 2, 1);
-
-    //draw time above the arrow
-    canvas->setFont(&FreeSansBold9pt7b);
-    drawFancyString(militaryTimeToNormalPersonTime(currentStart), (currentBlock-currentBlock%2)*20 - 30, 325);
-
+    drawTimeBlocks(reservations, currentBlock, true);
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
@@ -358,44 +385,16 @@ void drawImage3(std::string roomName, std::string date, std::string time, std::s
     //set sleepTime
     setSleepTime(1800, daylightSavingsActive);
 
-    canvas->setFont(&FreeSans24pt7b);
     canvas->setTextColor(1);
     canvas->setTextWrap(false);
 
     //parse reservations
     std::vector<reservation> reservs = parseReservations(reservations);
 
-    //draw room name
-    if (!drawCenteredString(roomName + " Reservations", 45)) {
-        if (!drawCenteredString(roomName, 45)) {
-            canvas->setFont(&FreeSans18pt7b);
-            if (!drawCenteredString(roomName + " Reservations", 42)) {
-                if (!drawCenteredString(roomName, 42)) {
-                    canvas->setFont(&FreeSans12pt7b);
-                    if (!drawCenteredString(roomName + " Reservations", 39)) {
-                        if (!drawCenteredString(roomName, 39)) {
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    //draw date
-    canvas->setFont(&FreeSans18pt7b);
-    drawCenteredString(fancyDateFromYYYY_MM_DD(date), 85);
-
-    //draw line under date
-    drawRect(0,95,x_res,2,1);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, false);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
 
     //Get current event
     int currentEventIndex;
@@ -433,104 +432,7 @@ void drawImage3(std::string roomName, std::string date, std::string time, std::s
 		canvas->setFont(&FreeSans12pt7b);
 		drawFancyString(reservs.at(currentEventIndex+1).title, 8, 306);
     }
-
-    //draw times
-    canvas->setFont(&FreeSansBold9pt7b);
-    for (int hour = 7; hour < 22; hour++) {
-        std::stringstream hourString;
-        if (hour < 13)
-            hourString << hour;
-        else
-            hourString << hour-12;
-        if (hourString.str().length() == 1)
-            drawFancyString(hourString.str(), hour*40 - 245, 378);
-        else
-            drawFancyString(hourString.str(), hour*40 - 249, 378);
-    }
-
-    //draw blocks
-    for (int block = 0; block < 32; block++) {
-        drawRect(block*20, 337, 20, 22, 1);
-        if (reservations[block].compare("Available") == 0) {
-            //drawRect(block*20 + 1, 324, 18, 33, 0);
-            //eliminate vertical lines
-            drawRect(block*20, 339, 20, 18, 0);
-
-            //put rounded corners on ends
-            drawRect(0, 339, 2, 18, 1);
-            drawRect(0, 337, 1, 2, 0);
-            drawRect(1, 337, 1, 1, 0);
-            drawRect(2, 339, 1, 1, 1);
-            drawRect(0, 357, 1, 2, 0);
-            drawRect(1, 358, 1, 1, 0);
-            drawRect(2, 356, 1, 1, 1);
-
-            drawRect(638, 339, 2, 18, 1);
-            drawRect(639, 337, 1, 2, 0);
-            drawRect(638, 337, 1, 1, 0);
-            drawRect(637, 339, 1, 1, 1);
-            drawRect(639, 357, 1, 2, 0);
-            drawRect(638, 358, 1, 1, 0);
-            drawRect(637, 356, 1, 1, 1);
-        }
-    }
-
-    //round corners if edge case
-    for (int block = 0; block < 32; block++) {
-        if (reservations[block].compare("Available") == 0) {
-            if (block > 0) {
-                if (reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 4, 337, 5, 2, 0);
-                    drawRect(block*20, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 5, 2, 0);
-                    drawRect(block*20, 357, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 337, 1, 22, 0);
-                    drawRect(block*20, 339, 1, 18, 1);
-                    drawRect(block*20 + 1, 339, 1, 1, 1);
-                    drawRect(block*20 + 1, 356, 1, 1, 1);
-                }
-            }
-            if (block < 31) {
-                if (reservations[block+1].compare("Available") != 0) {
-                    drawRect(block*20 + 19, 337, 5, 2, 0);
-                    drawRect(block*20 + 19, 338, 1, 1, 1);
-                    drawRect(block*20 + 23, 338, 1, 1, 1);
-                    drawRect(block*20 + 19, 357, 5, 2, 0);
-                    drawRect(block*20 + 19, 357, 1, 1, 1);
-                    drawRect(block*20 + 23, 357, 1, 1, 1);
-                    drawRect(block*20 + 21, 337, 1, 22, 0);
-                    drawRect(block*20 + 19, 339, 1, 18, 1);
-                    drawRect(block*20 + 18, 339, 1, 1, 1);
-                    drawRect(block*20 + 18, 356, 1, 1, 1);
-                }
-            }
-        } else {
-            if (block > 0) {
-                if (reservations[block-1].compare(reservations[block]) != 0 && reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 2, 337, 5, 2, 0);
-                    drawRect(block*20 + 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 5, 2, 0);
-                    drawRect(block*20 + 2, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 1, 1, 1);
-                    drawRect(block*20, 337, 1, 22, 0);
-                }
-            }
-        }
-    }
-    
-    //draw arrow
-    drawRect((currentBlock-currentBlock%2)*20, 335, 2, 1, 1);
-    drawRect((currentBlock-currentBlock%2)*20 - 1, 334, 4, 1, 1);
-    drawRect((currentBlock-currentBlock%2)*20 - 2, 333, 6, 1, 1);
-    drawRect((currentBlock-currentBlock%2)*20 - 3, 331, 8, 2, 1);
-
-    //draw time above the arrow
-    //canvas->setFont(&FreeSansBold9pt7b);
-    //drawFancyString(militaryTimeToNormalPersonTime(reservationBlockToTime(currentBlock-currentBlock%2)), (currentBlock-currentBlock%2)*20 - 30, 326);
-
+    drawTimeBlocks(reservations, currentBlock, true);
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
@@ -550,13 +452,7 @@ void drawImage4(std::string roomName, std::string date, std::string time, std::s
     drawRect(0,63,x_res,2,1);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
 
     //Get current event
     std::string currentTitle = reservations[currentBlock];
@@ -708,13 +604,7 @@ void drawImage6(std::string roomName, std::string date, std::string time, std::s
     drawRect(6,74,x_res-6,2,1);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
 
     //Get current event
     std::string currentTitle = reservations[currentBlock];
@@ -852,173 +742,27 @@ void drawImage7(std::string roomName, std::string date, std::string time, std::s
     //set sleepTime
     setSleepTime(1800, daylightSavingsActive);
 
-    canvas->setFont(&FreeSansBold18pt7b);
     canvas->setTextColor(1);
     canvas->setTextWrap(false);
 
     //parse reservations
     std::vector<reservation> reservs = parseReservations(reservations);
 
-    //draw room name
-    drawFancyString(roomName, 15, 45);
-
-    //draw date
-    canvas->setFont(&FreeSansBold12pt7b);
-    drawFancyString(fancyDateFromYYYY_MM_DD(date), 15, 80);
-
-    //draw rectangle to emphasize title block
-    drawRect(0,0,9,98,3);
-
-    //draw line under date
-    canvas->setFont(&FreeSansBold9pt7b);
-    drawRect(9,95,x_res-9,3,1);
-    drawRect(624-getTextWidth(displayUrl)-12,95,getTextWidth(displayUrl)+12,3,0);
-
-    //draw base scheduling url
-    drawFancyString(displayUrl,617 - getTextWidth(displayUrl),100);
-
-    int s = getQrCodeSize(qrCodeString);
-    putQrCode(597-s,44-s,qrCodeString, 2);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, true);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
 
     //Get current event
-    int currentEventIndex;
-    for (int i = 0; i < reservs.size(); i++) {
-        if (currentBlock >= reservs.at(i).startBlock && currentBlock <= reservs.at(i).endBlock)
-            currentEventIndex = i;
-    }
+    int currentEventIndex = getCurrentEvent(reservs, currentBlock);
     
     //Draw current event
-    std::string currentEventTime = militaryTimeToNormalPersonTime(reservationBlockToTime(currentBlock)) + " - " + militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex).endBlock));
-    canvas->setFont(&FreeSansBold18pt7b);
-    drawFancyString(currentEventTime, 15, 142);
-    canvas->setFont(&FreeSans18pt7b);
-    drawFancyString(reservs.at(currentEventIndex).title, 15, 178);
+    drawCurrentEvent(reservs, currentBlock, currentEventIndex);
 
     //Draw next event
-    if (reservs.size() > currentEventIndex+1) {
-        std::string nextEventTime = militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex+1).startBlock)) + " - " + militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex+1).endBlock));
-		canvas->setFont(&FreeSansBold12pt7b);
-		drawFancyString(nextEventTime, 15, 221);
-		canvas->setFont(&FreeSans12pt7b);
-		drawFancyString(reservs.at(currentEventIndex+1).title, 15, 251);
-    }
+    drawNextEvent(reservs, currentBlock, currentEventIndex);
 
-    //draw times
-    canvas->setFont(&FreeSansBold9pt7b);
-    for (int hour = 7; hour < 22; hour++) {
-        std::stringstream hourString;
-        if (hour < 13)
-            hourString << hour;
-        else
-            hourString << hour-12;
-        if (hourString.str().length() == 1)
-            drawFancyString(hourString.str(), hour*40 - 245, 378);
-        else
-            drawFancyString(hourString.str(), hour*40 - 249, 378);
-    }
-
-    //draw blocks
-    for (int block = 0; block < 32; block++) {
-        drawRect(block*20, 337, 20, 22, 1);
-        if (reservations[block].compare("Available") == 0) {
-            //drawRect(block*20 + 1, 324, 18, 33, 0);
-            //eliminate vertical lines
-            drawRect(block*20, 339, 20, 18, 0);
-
-            //put rounded corners on ends
-            drawRect(0, 339, 2, 18, 1);
-            drawRect(0, 337, 1, 2, 0);
-            drawRect(1, 337, 1, 1, 0);
-            drawRect(2, 339, 1, 1, 1);
-            drawRect(0, 357, 1, 2, 0);
-            drawRect(1, 358, 1, 1, 0);
-            drawRect(2, 356, 1, 1, 1);
-
-            drawRect(638, 339, 2, 18, 1);
-            drawRect(639, 337, 1, 2, 0);
-            drawRect(638, 337, 1, 1, 0);
-            drawRect(637, 339, 1, 1, 1);
-            drawRect(639, 357, 1, 2, 0);
-            drawRect(638, 358, 1, 1, 0);
-            drawRect(637, 356, 1, 1, 1);
-        }
-    }
-
-    //round corners if edge case
-    for (int block = 0; block < 32; block++) {
-        if (reservations[block].compare("Available") == 0) {
-            if (block > 0) {
-                if (reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 4, 337, 5, 2, 0);
-                    drawRect(block*20, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 5, 2, 0);
-                    drawRect(block*20, 357, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 337, 1, 22, 0);
-                    drawRect(block*20, 339, 1, 18, 1);
-                    drawRect(block*20 + 1, 339, 1, 1, 1);
-                    drawRect(block*20 + 1, 356, 1, 1, 1);
-                }
-            }
-            if (block < 31) {
-                if (reservations[block+1].compare("Available") != 0) {
-                    drawRect(block*20 + 19, 337, 5, 2, 0);
-                    drawRect(block*20 + 19, 338, 1, 1, 1);
-                    drawRect(block*20 + 23, 338, 1, 1, 1);
-                    drawRect(block*20 + 19, 357, 5, 2, 0);
-                    drawRect(block*20 + 19, 357, 1, 1, 1);
-                    drawRect(block*20 + 23, 357, 1, 1, 1);
-                    drawRect(block*20 + 21, 337, 1, 22, 0);
-                    drawRect(block*20 + 19, 339, 1, 18, 1);
-                    drawRect(block*20 + 18, 339, 1, 1, 1);
-                    drawRect(block*20 + 18, 356, 1, 1, 1);
-                }
-            }
-        } else {
-            if (block > 0) {
-                if (reservations[block-1].compare(reservations[block]) != 0 && reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 2, 337, 5, 2, 0);
-                    drawRect(block*20 + 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 5, 2, 0);
-                    drawRect(block*20 + 2, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 1, 1, 1);
-                    drawRect(block*20, 337, 1, 22, 0);
-                }
-            }
-        }
-    }
-
-    //round corners of overall bottom rectangle
-    drawRect(0,337,2,1,0);
-    drawRect(0,338,1,1,0);
-    drawRect(638,337,2,1,0);
-    drawRect(639,338,1,1,0);
-    drawRect(0,358,2,1,0);
-    drawRect(0,357,1,1,0);
-    drawRect(638,358,2,1,0);
-    drawRect(639,357,1,1,0);
-    
-    //draw arrow
-    drawRect(currentBlock*20, 335, 2, 1, 1);
-    drawRect(currentBlock*20 - 1, 334, 4, 1, 1);
-    drawRect(currentBlock*20 - 2, 333, 6, 1, 1);
-    drawRect(currentBlock*20 - 3, 331, 8, 2, 1);
-
-    //draw time above the arrow
-    //canvas->setFont(&FreeSansBold9pt7b);
-    //drawFancyString(militaryTimeToNormalPersonTime(reservationBlockToTime(currentBlock-currentBlock%2)), (currentBlock-currentBlock%2)*20 - 30, 326);
-
+    drawTimeBlocks(reservations, currentBlock, true);
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
@@ -1047,13 +791,7 @@ void drawImage9(std::string roomName, std::string date, std::string time, std::s
     drawRect(6,74,x_res-6,2,1);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
     
     //Get current event
     int currentEventIndex;
@@ -1218,22 +956,16 @@ void drawImage10(std::string roomName, std::string date, std::string time, std::
     //draw line under date
     canvas->setFont(&FreeSansBold9pt7b);
     drawRect(9,95,x_res-9,3,1);
-    drawRect(624-getTextWidth(displayUrl)-12,95,getTextWidth(displayUrl)+12,3,0);
+    drawRect(x_res-36-getTextWidth(displayUrl)-12,95,getTextWidth(displayUrl)+12,3,0);
 
     //draw base scheduling url
-    drawFancyString(displayUrl,617 - getTextWidth(displayUrl),100);
+    drawFancyString(displayUrl,x_res-43 - getTextWidth(displayUrl),100);
 
     int s = getQrCodeSize(qrCodeString);
-    putQrCode(597-s,44-s,qrCodeString, 2);
+    putQrCode(x_res-10-2*s,44-s,qrCodeString, 2);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
 
     //Get current event
     int currentEventIndex;
@@ -1243,13 +975,11 @@ void drawImage10(std::string roomName, std::string date, std::string time, std::
     }
     
     //Draw current event
-    std::string currentEventTime = militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex).startBlock)) + " - " + militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex).endBlock));
+    std::string currentEventTime = militaryTimeToNormalPersonTime(reservationBlockToTime(currentBlock)) + " - " + militaryTimeToNormalPersonTime(reservationBlockToTime(reservs.at(currentEventIndex).endBlock));
     canvas->setFont(&FreeSansBold18pt7b);
     drawFancyString(currentEventTime, 15, 142);
     canvas->setFont(&FreeSans18pt7b);
-    canvas->setTextWrap(false);
     drawFancyString(reservs.at(currentEventIndex).title, 15, 178);
-    canvas->setTextWrap(false);
 
     //Draw next event
     if (reservs.size() > currentEventIndex+1) {
@@ -1257,108 +987,10 @@ void drawImage10(std::string roomName, std::string date, std::string time, std::
 		canvas->setFont(&FreeSansBold12pt7b);
 		drawFancyString(nextEventTime, 15, 221);
 		canvas->setFont(&FreeSans12pt7b);
-        canvas->setTextWrap(false);
 		drawFancyString(reservs.at(currentEventIndex+1).title, 15, 251);
-        canvas->setTextWrap(false);
     }
 
-    //draw times
-    canvas->setFont(&FreeSansBold9pt7b);
-    for (int hour = 7; hour < 22; hour++) {
-        std::stringstream hourString;
-        if (hour < 13)
-            hourString << hour;
-        else
-            hourString << hour-12;
-        if (hourString.str().length() == 1)
-            drawFancyString(hourString.str(), hour*40 - 245, 378);
-        else
-            drawFancyString(hourString.str(), hour*40 - 249, 378);
-    }
-
-    //draw blocks
-    for (int block = 0; block < 32; block++) {
-        drawRect(block*20, 337, 20, 22, 1);
-        if (reservations[block].compare("Available") == 0) {
-            //drawRect(block*20 + 1, 324, 18, 33, 0);
-            //eliminate vertical lines
-            drawRect(block*20, 339, 20, 18, 0);
-
-            //put rounded corners on ends
-            drawRect(0, 339, 2, 18, 1);
-            drawRect(0, 337, 1, 2, 0);
-            drawRect(1, 337, 1, 1, 0);
-            drawRect(2, 339, 1, 1, 1);
-            drawRect(0, 357, 1, 2, 0);
-            drawRect(1, 358, 1, 1, 0);
-            drawRect(2, 356, 1, 1, 1);
-
-            drawRect(638, 339, 2, 18, 1);
-            drawRect(639, 337, 1, 2, 0);
-            drawRect(638, 337, 1, 1, 0);
-            drawRect(637, 339, 1, 1, 1);
-            drawRect(639, 357, 1, 2, 0);
-            drawRect(638, 358, 1, 1, 0);
-            drawRect(637, 356, 1, 1, 1);
-        }
-    }
-
-    //round corners if edge case
-    for (int block = 0; block < 32; block++) {
-        if (reservations[block].compare("Available") == 0) {
-            if (block > 0) {
-                if (reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 4, 337, 5, 2, 0);
-                    drawRect(block*20, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 338, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 5, 2, 0);
-                    drawRect(block*20, 357, 1, 1, 1);
-                    drawRect(block*20 - 4, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 337, 1, 22, 0);
-                    drawRect(block*20, 339, 1, 18, 1);
-                    drawRect(block*20 + 1, 339, 1, 1, 1);
-                    drawRect(block*20 + 1, 356, 1, 1, 1);
-                }
-            }
-            if (block < 31) {
-                if (reservations[block+1].compare("Available") != 0) {
-                    drawRect(block*20 + 19, 337, 5, 2, 0);
-                    drawRect(block*20 + 19, 338, 1, 1, 1);
-                    drawRect(block*20 + 23, 338, 1, 1, 1);
-                    drawRect(block*20 + 19, 357, 5, 2, 0);
-                    drawRect(block*20 + 19, 357, 1, 1, 1);
-                    drawRect(block*20 + 23, 357, 1, 1, 1);
-                    drawRect(block*20 + 21, 337, 1, 22, 0);
-                    drawRect(block*20 + 19, 339, 1, 18, 1);
-                    drawRect(block*20 + 18, 339, 1, 1, 1);
-                    drawRect(block*20 + 18, 356, 1, 1, 1);
-                }
-            }
-        } else {
-            if (block > 0) {
-                if (reservations[block-1].compare(reservations[block]) != 0 && reservations[block-1].compare("Available") != 0) {
-                    drawRect(block*20 - 2, 337, 5, 2, 0);
-                    drawRect(block*20 + 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 338, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 5, 2, 0);
-                    drawRect(block*20 + 2, 357, 1, 1, 1);
-                    drawRect(block*20 - 2, 357, 1, 1, 1);
-                    drawRect(block*20, 337, 1, 22, 0);
-                }
-            }
-        }
-    }
-
-    //round corners of overall bottom rectangle
-    drawRect(0,337,2,1,0);
-    drawRect(0,338,1,1,0);
-    drawRect(638,337,2,1,0);
-    drawRect(639,338,1,1,0);
-    drawRect(0,358,2,1,0);
-    drawRect(0,357,1,1,0);
-    drawRect(638,358,2,1,0);
-    drawRect(639,357,1,1,0);
-    
+    drawTimeBlocks(reservations, currentBlock, false);
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
@@ -1396,13 +1028,7 @@ void drawImage11(std::string roomName, std::string date, std::string time, std::
     putQrCode(597-s,44-s,qrCodeString, 2);
 
     //Get current block
-    int currentBlock;
-    currentBlock = (atoi(time.substr(0,2).c_str()) - 6) * 2;
-    currentBlock += atoi(time.substr(3,2).c_str()) / 30;
-    if (currentBlock < 0)
-        currentBlock = 0;
-    if (currentBlock > 31)
-        currentBlock = 31;
+    int currentBlock = getCurrentBlock(time);
 
     //Get current event
     int currentEventIndex;

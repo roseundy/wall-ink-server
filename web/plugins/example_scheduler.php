@@ -48,7 +48,7 @@ class exampleSchedulerPlugin implements iPlugin {
         // Usually this function would be getting today's event info from a database or API.
         // Since we are creating dates with today's date on them to display, we need to get today's
         // date and format properly for the image generator.	
-        $formatted_date = date("Y-m-d");		
+        $formatted_date = trim(`date +%Y-%m-%d`);
 
         // This function would typically use an API or other code to query some other resource
         // to get the a schedule and put it into the proper format.

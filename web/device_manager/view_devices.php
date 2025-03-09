@@ -3,6 +3,7 @@
 </style>
 <?php
 function printResult($devices, $rooms, $plugins) {
+    $date=trim(`date +%Y-%m-%d`);
     echo '<div class="main">';
 
     echo '<div class="sidebar">';
@@ -115,7 +116,7 @@ function printResult($devices, $rooms, $plugins) {
         echo $device["firmware_version"];
         echo "</td>";
         echo "<td class=\"last_checked_in";
-        if (substr($device["last_checked_in"], 0, 10) !== date('Y-m-d') && $device['is_production']) {
+        if (substr($device["last_checked_in"], 0, 10) !== $date && $device['is_production']) {
             echo " orange";
         }
         if (!$device['is_production']) {

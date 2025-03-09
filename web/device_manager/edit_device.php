@@ -19,8 +19,8 @@
             "orientation" => 1,
             "device_type" => 7,
             "voltage" => 7,
-            "width" => 640,
-            "height" => 384,
+            "width" => 800,
+            "height" => 480,
             "plugin" => 0,
             "is_production" => true,
             "notes" => ""

@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 
 source $1
 if [[ ! -e "$runTimeWebDirectory/voltage_monitor/data" ]]; then

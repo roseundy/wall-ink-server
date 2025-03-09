@@ -5,14 +5,14 @@
 #include <vector>
 #include "layouts.h"
 
-#define X_RES0 384
-#define Y_RES0 640
+#define X_RES0 480
+#define Y_RES0 800
 #define X_RES1 400
 #define Y_RES1 300
-#define X_RES2 640
-#define Y_RES2 384
-#define X_RES3 640
-#define Y_RES3 384
+#define X_RES2 800
+#define Y_RES2 480
+#define X_RES3 800
+#define Y_RES3 480
 #define X_RES4 400
 #define Y_RES4 300
 

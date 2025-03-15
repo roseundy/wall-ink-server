@@ -21,19 +21,19 @@ do
     rrdtool update $rrdDirectory/$mac_address.rrd N:$voltage
     rrdtool graph \
         $runTimeWebDirectory/voltage_monitor/data/week_$mac_address.png \
-        -u 3.5 -l 2.3 -r \
+        -u 4.5 -l 2.5 -r \
         --end now --start end-167h \
         DEF:voltagea=$rrdDirectory/$mac_address.rrd:voltage:AVERAGE \
         LINE1:voltagea#0000FF:"Voltage over past week"
     rrdtool graph \
         $runTimeWebDirectory/voltage_monitor/data/month_$mac_address.png \
-        -u 3.5 -l 2.3 -r \
+        -u 4.5 -l 2.5 -r \
         --end now --start end-1m \
         DEF:voltagea=$rrdDirectory/$mac_address.rrd:voltage:AVERAGE \
         LINE1:voltagea#0000FF:"Voltage over past month"
     rrdtool graph \
         $runTimeWebDirectory/voltage_monitor/data/year_$mac_address.png \
-        -u 3.5 -l 2.3 -r \
+        -u 4.5 -l 2.5 -r \
         --end now --start end-1y \
         DEF:voltagea=$rrdDirectory/$mac_address.rrd:voltage:AVERAGE \
         LINE1:voltagea#0000FF:"Voltage over past year"

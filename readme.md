@@ -14,7 +14,7 @@ The wall-ink-server houses several important functions:
 * It hosts a website for the configuration of the Wall-Ink displays
 
 # Installation
-1. Install the following dependencies to a Linux server: ```git```, ```gcc```, ```make``` (tested with GNU Make), MariaDB or MySQL
+1. Install the following dependencies to a Linux server: ```git```, ```gcc```, ```make``` (tested with GNU Make), MariaDB or MySQL, ```ImageMagick```
 1. Clone this repo ```git clone https://github.com/roseundy/wall-ink-server```
 1. Edit the information in ```wall-ink-server/web/config/settings.cfg.example``` and save the file as ```wall-ink-server/web/config/settings.cfg```  See the wiki article on [settings.cfg](https://github.com/roseundy/wall-ink-server/wiki/settings.cfg) for a full explanation of each setting.
 1. Create the table in mariadb or mysql by running the ```sql_setup.sh``` script in the wall-ink-server directory.  This script will only be successful if valid device database settings were set in the settings.cfg file above. 

@@ -72,7 +72,7 @@ class exampleSchedulerPlugin implements iPlugin {
             $schedule .= "\n";
             $schedule .= $formatted_date . " 11:00:00";
             $schedule .= "\n";
-            $schedule .= "Marketing Meeting";
+            $schedule .= "This is a very long name for a Marketing Meeting";
             $schedule .= "\n";
             $schedule .= $formatted_date . " 14:00:00";
             $schedule .= "\n";

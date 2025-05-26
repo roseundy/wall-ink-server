@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include "layouts.h"
 
 #define X_RES0 480
 #define Y_RES0 800
@@ -22,6 +21,8 @@ struct reservation {
         int startBlock;
         int endBlock;
 };
+
+#include "layouts.h"
 
 void setPixel(uint32_t x, uint32_t y, unsigned char color);
 void drawRect(int x, int y, int width, int height, unsigned char color);

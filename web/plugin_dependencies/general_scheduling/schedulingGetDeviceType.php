@@ -66,7 +66,7 @@ function schedulingGetDeviceType($device, $pluginIndex) {
         }
         if (in_array(0, $validDeviceTypes)) {
             $getDeviceType .= "<li>";
-                $getDeviceType .= "<label for=\"0\">7\" Portrait, 15 minute refresh</label>";
+                $getDeviceType .= "<label for=\"0\">7\" Portrait, all events, 15 minute refresh</label>";
                 $getDeviceType .= "<input type=\"radio\" id=\"type_0_$pluginIndex\" name=\"new_device_type\" value=\"0\"";
                 #if ($device['device_type'] == 0 && $device['plugin'] == $pluginIndex) {
                 if ($device['device_type'] == 0) {

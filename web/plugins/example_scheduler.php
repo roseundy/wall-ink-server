@@ -9,7 +9,7 @@ class exampleSchedulerPlugin implements iPlugin {
         //  We are querying the scheduler's resourceID looking for the common name of the resource
 
         //  We are statically defining an array of resources here since we are simulating having a database and an API
-        $resources = array("1"=>"Conference Room 1","2"=>"Conference Room 2","3"=>"Banquet Room","4"=>"Patio","5"=>"Theater");
+        $resources = array("1"=>"Conference Room 1","2"=>"Conference Room 2","3"=>"Banquet Room","4"=>"This is a very, extremely, huge, quite long room name/Patio","5"=>"Theater");
         $resourceName = $resources[$resourceId];
         return $resourceName;
     }

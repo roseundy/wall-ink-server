@@ -10,6 +10,13 @@ extern uint16_t y_res;
 void drawRoomDate(std::string roomName, std::string date, std::string displayUrl, std::string qrCodeString, bool drawQR, bool drawURL) { 
     canvas->setFont(&FreeSansBold18pt7b);
     uint16_t room_width = getTextWidth(roomName);
+    bool big_name = true;
+
+    if ((room_width + 5) > x_res) {
+        big_name = false;
+        canvas->setFont(&FreeSansBold12pt7b);
+        room_width = getTextWidth(roomName);
+    }
 
     bool emphasis = (room_width + 15) < x_res;
 
@@ -17,7 +24,11 @@ void drawRoomDate(std::string roomName, std::string date, std::string displayUrl
     drawFancyString(roomName, emphasis ? 15 : 5, 45);
 
     //draw date
-    canvas->setFont(&FreeSansBold12pt7b);
+    if (big_name) {
+    	canvas->setFont(&FreeSansBold12pt7b);
+    } else {
+    	canvas->setFont(&FreeSansBold9pt7b);
+    }
     drawFancyString(fancyDateFromYYYY_MM_DD(date), emphasis ? 15 : 5, 80);
 
     //draw rectangle to emphasize title block
@@ -267,6 +278,8 @@ void drawImage0(std::string roomName, std::string date, std::string time, std::s
     drawFancyString("Updated " + militaryTimeToNormalPersonTime(time), 32, y_res-13);
     //drawCenteredString(displayUrl, y_res-13);
 
+    int currentBlock = getCurrentBlock(time);
+
     int box_height = 20;
     int x_pos = 20;
 
@@ -300,6 +313,13 @@ void drawImage0(std::string roomName, std::string date, std::string time, std::s
         if (i % 2 == 0)
             time << "0";
         time << ampm;
+
+        //draw box around current time
+        if (i == currentBlock) {
+            drawRect(boxCoordinates[i][0]-12, boxCoordinates[i][1], 70, box_height+1, 1);
+            drawRect(boxCoordinates[i][0]-10, boxCoordinates[i][1]+2, 66, box_height-3, 0);
+        }
+
         drawFancyString(time.str(), boxCoordinates[i][0] - 11, boxCoordinates[i][1]+box_height-5); 
 
         //draw black boxes
@@ -307,7 +327,7 @@ void drawImage0(std::string roomName, std::string date, std::string time, std::s
 
         //draw white boxes for open time slots
         if (reservations[i].compare("Available") == 0)
-            drawRect(boxCoordinates[i][0]+72, boxCoordinates[i][1]+1, 47, box_height - 2, 0);
+            drawRect(boxCoordinates[i][0]+72, boxCoordinates[i][1]+1, 47, box_height - 2, 3);
     }
     //finish top and bottom of the boxes we just drew
     drawRect(70 + x_pos, 77, 51, 1, 1);
@@ -346,7 +366,7 @@ void drawImage0(std::string roomName, std::string date, std::string time, std::s
 
     //key
     drawRect(32,y_res-59,51,28,1);
-    drawRect(34,y_res-57,47,24,0);
+    drawRect(34,y_res-57,47,24,3);
     drawFancyString("Available",88,y_res-39);
     drawRect(191,y_res-59,51,28,1);
     drawFancyString("Reserved",244,y_res-39);

@@ -34,6 +34,11 @@ The wall-ink-server houses several important functions:
     1. The quickstart.php file should now create a new .json file ```wall-ink-server/web/plugin_dependencies/google/token.json``` using both the credentials.json file you downloaded, and the phrase pasted into the quickstart.php script.  If the API keys were successfully created, running quickstart.php should display a list of calendars available from the google API to the command line.  You can use the quickstart.php script from the command line at any time to verify that the google API keys are still working.
 1. (option) For those using Outlook / Exchange, or other published iCal calendars, see the installation instructions for the [iCalWeb plugin](https://github.com/roseundy/wall-ink-server/wiki/iCalWeb---Outlook---Exchange-plugin#installation).
 1. (optional) Create a [plugin](https://github.com/roseundy/wall-ink-server/wiki/Plugin-architecture) to integrate with your own calendaring system, or for a whole different use case like a weather station or a bus schedule.
+1. (optional) Config Apache
+    1. Copy the apache2.conf file in the apache2 directory to /etc/apache2/
+    1. Create a password file for authentication: ```htpasswd -c /var/www/html/config/passwd <user1>```
+    1. Create a password for a user: ```htpasswd /var/www/html/config/passwd <user2>```
+    1. These user ids and passwords will be used to authenticate the device_manager web pages
 1. Follow the steps below to build the project
 
 # Build

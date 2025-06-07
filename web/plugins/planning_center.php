@@ -3,6 +3,14 @@ require_once("$_SERVER[DOCUMENT_ROOT]/plugin_dependencies/iPlugin.php");
 require("$_SERVER[DOCUMENT_ROOT]/config/dbconfig.php");
 
 class planningCenterPlugin implements iPlugin {
+    private function trimResourceName($long_name) {
+        if (($slash_pos = strpos($long_name, "/")) === false) {
+             return $long_name;
+        } else {
+             return substr($long_name, 0, $slash_pos);
+        }
+    }
+
     private function convertPlanningCenterDate ($zulu) {
        // convert zulu time to local time
        $ts = strtotime($zulu);
@@ -64,10 +72,6 @@ class planningCenterPlugin implements iPlugin {
         // image_data folder.  Look for a file named <mac_address>.info which will contain the
         // text schedule for your resource.
 
-        // Add the name of the resource to the top of the schedule
-        $schedule = $this->getResourceName($config, $resourceId);
-        $schedule .="\n";
-
         // Usually this function would be getting today's event info from a database or API.
         // Since we are creating dates with today's date on them to display, we need to get today's
         // date and format properly for the image generator.	
@@ -83,8 +87,44 @@ class planningCenterPlugin implements iPlugin {
 	$schedule_url .= "&where[starts_at][lte]=$tomorrow";
 	$jres = $this->planningCenterAPI($config, $schedule_url);
 
+	$room_name = $this->trimResourceName($this->getResourceName($config, $resourceId));
+        $found_elaine = false;
+	// go thru events and look for "Elaine"
+	foreach($jres["data"] as $item) {
+	    $event_id = $item["relationships"]["event"]["data"]["id"];
+	    $ename = $this->getEventName($config, $event_id);
+	    if (str_contains($ename, "Elaine")) {
+	       $start_ts = strtotime($this->convertPlanningCenterDate($item["attributes"]["starts_at"]));
+	       $end_ts = strtotime($this->convertPlanningCenterDate($item["attributes"]["ends_at"]));
+
+               if (($start_ts <= $timestamp) && ($end_ts >= $timestamp)) {
+                  $room_name = "Rev. Elaine's Office";
+                  $found_elaine = true;
+               }
+            }
+        }
+
+        // Add the name of the resource to the top of the schedule
+        $schedule = $room_name;
+        $schedule .="\n";
+
+        if ($found_elaine) {
+           $schedule .="+no_events+";
+           $schedule .="\n";
+        }
+
+        $today = date("Y-m-d", $timestamp);
+        $tomorrow = date("Y-m-d", $timestamp + 24 * 60 * 60);
+
 	foreach($jres["data"] as $item) {
 	    $start = $this->convertPlanningCenterDate($item["attributes"]["starts_at"]);
+	    $start_ts = strtotime($start);
+
+            // only process events for today or tomorrow in local time zone
+            if (!str_contains($start, $today) && !str_contains($start, $tomorrow)) {
+                continue;
+            }
+
 	    $end = $this->convertPlanningCenterDate($item["attributes"]["ends_at"]);
 	    // look up meeting name
 	    $event_id = $item["relationships"]["event"]["data"]["id"];

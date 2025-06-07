@@ -382,10 +382,15 @@ int main(int argc, char* argv[]) {
     } else if (deviceType.compare("12") == 0) {
         x_res = X_RES3;
         y_res = Y_RES3;
+    } else if (deviceType.compare("13") == 0) {
+        x_res = X_RES3;
+        y_res = Y_RES3;
     }
     canvas = new GFXcanvas1(x_res, y_res);
     canvas->fillScreen(0);
     image = canvas->getBuffer();
+
+    bool no_events = false;
 
     std::string reservations[32];
     for (int i = 0; i < 32; i++) {
@@ -393,8 +398,8 @@ int main(int argc, char* argv[]) {
     }
     reservation tomorrow;
     tomorrow.title = "Available";
-    tomorrow.startBlock = 0;
-    tomorrow.endBlock = 32;
+    tomorrow.startBlock = -1;
+    tomorrow.endBlock = -1;
     std::string title;
     int eventNum = 0;
 
@@ -402,6 +407,11 @@ int main(int argc, char* argv[]) {
     while (getline(fromDB, title)) {
         //fix problems like the & symbol being shown as &amp;
         title = fixPunctuation(title);
+
+	if (title.compare("+no_events+") == 0) {
+	    no_events = true;
+            continue;
+        }
 
         //Make the titles not collide, ever
         ++eventNum;
@@ -420,8 +430,10 @@ int main(int argc, char* argv[]) {
         } else {
 	    skip_res = true;
             startIndex = 0;
-            tomorrow.title = title;
-            tomorrow.startBlock = time2index(dateTimeStart, 30);
+            if (tomorrow.startBlock == -1) {
+            	tomorrow.title = title;
+                tomorrow.startBlock = time2index(dateTimeStart, 30);
+            }
         }
 
         //Take in a date formatted string and decide which reservations[] time block it corresponds to
@@ -432,7 +444,9 @@ int main(int argc, char* argv[]) {
             endIndex = time2index(dateTimeEnd, 32);
         } else {
             endIndex = 32;
-            tomorrow.endBlock = time2index(dateTimeEnd, 31);
+            if (tomorrow.endBlock == -1) {
+                tomorrow.endBlock = time2index(dateTimeEnd, 31);
+            }
         }
 
         if (!skip_res) {
@@ -442,29 +456,36 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    if (tomorrow.startBlock == -1) {
+        tomorrow.startBlock = 0;
+        tomorrow.endBlock = 32;
+    }
+
     //actually generate the desired image
     if (deviceType.compare("0") == 0) {
-        drawImage0(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage0(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("1") == 0) {
-        drawImage1(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage1(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("2") == 0) {
-        drawImage2(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage2(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("3") == 0) {
-        drawImage3(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage3(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("4") == 0) {
-        drawImage4(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage4(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("6") == 0) {
-        drawImage6(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage6(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("7") == 0) {
-        drawImage7(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage7(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("9") == 0) {
-        drawImage9(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage9(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("10") == 0) {
-        drawImage10(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage10(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("11") == 0) {
-        drawImage11(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage11(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     } else if (deviceType.compare("12") == 0) {
-        drawImage12(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow);
+        drawImage12(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+    } else if (deviceType.compare("13") == 0) {
+        drawImage13(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
     }
 
     //if orientation is 1, flip image

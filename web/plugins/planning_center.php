@@ -78,13 +78,22 @@ class planningCenterPlugin implements iPlugin {
         $formatted_date = trim(`date +%Y-%m-%d`);
 	$timestamp = time();
 	date_default_timezone_set('America/Denver'); // Make local timezone default for PHP
-	$today = gmdate("Y-m-d", $timestamp);
-	$tomorrow = gmdate("Y-m-d", $timestamp + 60 * 60 * 24);
+
+        // calculate UTC time for this morning and tomorrow night
+        //
+        $this_morning_str = date("Y-m-d 00:00:00", $timestamp);
+        $tomorrow_night_str = date("Y-m-d 23:59:59", $timestamp + 60 * 60 * 24);
+        $tm = date_parse($this_morning_str);
+        $tn = date_parse($tomorrow_night_str);
+        $this_morning_ts = mktime(0, 0, 0, $tm["month"], $tm["day"], $tm["year"]);
+        $tomorrow_night_ts = mktime(23, 59, 59, $tn["month"], $tn["day"], $tn["year"]);
+        $this_morning_zulu = gmdate("Y-m-d\TH:i:s\Z", $this_morning_ts);
+        $tomorrow_night_zulu = gmdate("Y-m-d\TH:i:s\Z", $tomorrow_night_ts);
 
 	$schedule_url = "https://api.planningcenteronline.com/calendar/v2/resources/$resourceId/resource_bookings";
 	$schedule_url .= "?order=starts_at";
-	$schedule_url .= "&where[starts_at][gte]=$today";
-	$schedule_url .= "&where[starts_at][lte]=$tomorrow";
+	$schedule_url .= "&where[starts_at][gte]=$this_morning_zulu";
+	$schedule_url .= "&where[starts_at][lte]=$tomorrow_night_zulu";
 	$jres = $this->planningCenterAPI($config, $schedule_url);
 
 	$room_name = $this->trimResourceName($this->getResourceName($config, $resourceId));

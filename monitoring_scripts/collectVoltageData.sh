@@ -14,26 +14,26 @@ do
         rrdtool create $rrdDirectory/$mac_address.rrd \
             --start `date +%s` \
             --step 1800 \
-            DS:voltage:GAUGE:3600:1:5 \
+            DS:voltage:GAUGE:3600:1:5.5 \
             RRA:AVERAGE:0.5:48:366 \
             RRA:AVERAGE:0.5:1:335
     fi
     rrdtool update $rrdDirectory/$mac_address.rrd N:$voltage
     rrdtool graph \
         $runTimeWebDirectory/voltage_monitor/data/week_$mac_address.png \
-        -u 4.8 -l 2.5 -r \
+        -u 5.5 -l 2.5 -r \
         --end now --start end-167h \
         DEF:voltagea=$rrdDirectory/$mac_address.rrd:voltage:AVERAGE \
         LINE1:voltagea#0000FF:"Voltage over past week"
     rrdtool graph \
         $runTimeWebDirectory/voltage_monitor/data/month_$mac_address.png \
-        -u 4.8 -l 2.5 -r \
+        -u 5.5 -l 2.5 -r \
         --end now --start end-1m \
         DEF:voltagea=$rrdDirectory/$mac_address.rrd:voltage:AVERAGE \
         LINE1:voltagea#0000FF:"Voltage over past month"
     rrdtool graph \
         $runTimeWebDirectory/voltage_monitor/data/year_$mac_address.png \
-        -u 4.8 -l 2.5 -r \
+        -u 5.5 -l 2.5 -r \
         --end now --start end-1y \
         DEF:voltagea=$rrdDirectory/$mac_address.rrd:voltage:AVERAGE \
         LINE1:voltagea#0000FF:"Voltage over past year"

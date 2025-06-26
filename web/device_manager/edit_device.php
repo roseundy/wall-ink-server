@@ -23,6 +23,7 @@
             "height" => 480,
             "plugin" => 0,
             "is_production" => true,
+            "only_events" => false,
             "notes" => ""
         );
         $plugin = reset($plugins);
@@ -118,6 +119,27 @@
                     echo "<label for=\"up-side_down\">Up-Side Down</label>";
                     echo "<input type=\"radio\" id=\"orientation_1\" name=\"new_orientation\" value=\"1\"";
                     if ($device['orientation'] == 1) {
+                        echo " checked";
+                    }
+                    echo ">";
+                echo "</li>";
+            echo "</ul>";
+        echo "</fieldset>";
+        echo "<fieldset id=\"events\" class=\"field\">";
+            echo "<legend>Only Display Scheduled Events:</legend>";
+            echo "<ul>";
+                echo "<li>";
+                    echo "<label for=\"true\">True</label>";
+                    echo "<input type=\"radio\" id=\"onlyevents\" name=\"new_onlyevents\" value=\"true\"";
+                    if ($device['only_events'] == true) {
+                        echo " checked";
+                    }
+                    echo ">";
+                echo "</li>";
+                echo "<li>";
+                    echo "<label for=\"false\">False</label>";
+                    echo "<input type=\"radio\" id=\"onlyevents\" name=\"new_onlyevents\" value=\"false\"";
+                    if ($device['only_events'] == false) {
                         echo " checked";
                     }
                     echo ">";

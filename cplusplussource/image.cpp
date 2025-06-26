@@ -16,9 +16,15 @@ uint32_t sleepTime;
 GFXcanvas1* canvas;
 uint16_t x_res;
 uint16_t y_res;
-
+uint16_t rotation;
 
 void setPixel(uint32_t x, uint32_t y, unsigned char color) {
+    if (rotation == 1) {
+       uint32_t t = x;
+       x = x_res - 1 - y;
+       y = t;
+    }
+
     if (x/8 + x_res/8*y >= y_res * x_res/8) {
         return;
     }
@@ -69,9 +75,15 @@ uint16_t getTextWidth(std::string str) {
 
 bool drawCenteredString(std::string str, int16_t y){
     uint16_t w = getTextWidth(str);
-    if (w <= x_res)
-    	drawFancyString(str, (x_res-w)/2, y);
-    return w <= x_res;
+    if (rotation == 0) {
+    	if (w <= x_res)
+    		drawFancyString(str, (x_res-w)/2, y);
+    	return w <= x_res;
+    } else {
+    	if (w <= y_res)
+    		drawFancyString(str, (y_res-w)/2, y);
+    	return w <= y_res;
+    }
 }
 
 uint16_t getQrCodeSize(std::string str) {
@@ -218,27 +230,31 @@ std::string fancyDateFromYYYY_MM_DD(std::string YYYY_MM_DD) {
     return fancyDate.str();
 }
 
-std::vector<reservation> parseReservations(std::string* reservations) {
+std::vector<reservation> parseReservations(std::string* reservations, bool only_events) {
     std::vector<reservation> reservs;
     reservs.clear();
     int startBlock = 0;
     std::string title = reservations[0];
     for (int block = 1; block < 32; block++) {
         if (title.compare(reservations[block]) != 0) {
-            reservation r;
-            r.title = title;
-            r.startBlock = startBlock;
-            r.endBlock = block;
-            reservs.push_back(r);
+	    if (!only_events || (title.compare("Available") != 0)) {
+                reservation r;
+                r.title = title;
+                r.startBlock = startBlock;
+                r.endBlock = block;
+                reservs.push_back(r);
+	    }
             title = reservations[block];
             startBlock = block;
         }
     }
-    reservation r;
-    r.title = title;
-    r.startBlock = startBlock;
-    r.endBlock = 32;
-    reservs.push_back(r);
+    if (!only_events || (title.compare("Available") != 0)) {
+        reservation r;
+        r.title = title;
+        r.startBlock = startBlock;
+        r.endBlock = 32;
+        reservs.push_back(r);
+    }
     return reservs;
 }
 
@@ -342,6 +358,8 @@ int main(int argc, char* argv[]) {
     getline(fromDB, orientation);
     std::string resourceID;
     getline(fromDB, resourceID);
+    std::string only_events;
+    getline(fromDB, only_events);
     std::string displayUrl;
     getline(fromDB, displayUrl);
     std::string qrCodeString;
@@ -349,9 +367,12 @@ int main(int argc, char* argv[]) {
     std::string name;
     getline(fromDB, name);
 
+    rotation = 0;
+
     if (deviceType.compare("0") == 0) {
         x_res = X_RES0;
         y_res = Y_RES0;
+        rotation = 1;
     } else if (deviceType.compare("1") == 0) {
         x_res = X_RES1;
         y_res = Y_RES1;
@@ -387,6 +408,7 @@ int main(int argc, char* argv[]) {
         y_res = Y_RES3;
     }
     canvas = new GFXcanvas1(x_res, y_res);
+    canvas->setRotation(rotation);
     canvas->fillScreen(0);
     image = canvas->getBuffer();
 
@@ -463,29 +485,29 @@ int main(int argc, char* argv[]) {
 
     //actually generate the desired image
     if (deviceType.compare("0") == 0) {
-        drawImage0(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage0(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("1") == 0) {
-        drawImage1(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage1(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("2") == 0) {
-        drawImage2(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage2(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("3") == 0) {
-        drawImage3(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage3(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("4") == 0) {
-        drawImage4(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage4(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("6") == 0) {
-        drawImage6(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage6(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("7") == 0) {
-        drawImage7(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage7(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("9") == 0) {
-        drawImage9(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage9(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("10") == 0) {
-        drawImage10(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage10(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("11") == 0) {
-        drawImage11(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage11(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("12") == 0) {
-        drawImage12(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage12(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     } else if (deviceType.compare("13") == 0) {
-        drawImage13(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events);
+        drawImage13(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
     }
 
     //if orientation is 1, flip image

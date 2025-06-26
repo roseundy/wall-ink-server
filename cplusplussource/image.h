@@ -4,14 +4,18 @@
 #include <string>
 #include <vector>
 
-#define X_RES0 480
-#define Y_RES0 800
+#define X_RES0 800
+#define Y_RES0 480
+
 #define X_RES1 400
 #define Y_RES1 300
+
 #define X_RES2 800
 #define Y_RES2 480
+
 #define X_RES3 800
 #define Y_RES3 480
+
 #define X_RES4 400
 #define Y_RES4 300
 
@@ -41,7 +45,7 @@ void flip();
 std::string reservationBlockToTime(int block);
 std::string militaryTimeToNormalPersonTime(std::string military);
 std::string fancyDateFromYYYY_MM_DD(std::string YYYY_MM_DD);
-std::vector<reservation> parseReservations(std::string* reservations);
+std::vector<reservation> parseReservations(std::string* reservations, bool only_events);
 void checkBattery(int xOffset, int yOffset, float voltage);
 uint32_t setSleepTime(uint32_t increment, int daylightSavingsActive); //increment is the target number of seconds between refreshes
 

@@ -17,6 +17,8 @@ function schedulingGetImage($config, $device, $schedule, $displayUrl, $qrCodeStr
     $macAddressInfo .= "\n";
     $macAddressInfo .= $device["resource_id"];
     $macAddressInfo .= "\n";
+    $macAddressInfo .= $device["only_events"];
+    $macAddressInfo .= "\n";
     $macAddressInfo .= $displayUrl;
     $macAddressInfo .= "\n";
     $macAddressInfo .= $qrCodeString;

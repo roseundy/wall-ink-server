@@ -28,6 +28,7 @@ function returnError($plugins,$config,$mac_address, $voltage, $firmware_version,
     $device["orientation"] = "1";
     $device["firmware_version"] = $firmware_version;
     $device["plugin"] = "4";
+    $device["only_events"] = "0";
     $device["height"] = $height;
     $device["width"] = $width;
     $device["error_message"] = $error;	
@@ -121,7 +122,7 @@ if ($result->num_rows != 0) {
     //this code block gets executed if the mac address doesn't match an existing device in the device database
     if ($config->autoRegister == "true") {
         $mysqli = mysqli_connect($config->deviceDatabaseServer, $config->deviceDatabaseUsername, $config->deviceDatabasePassword, $config->deviceDatabaseName);
-        $sql_query="INSERT INTO devices(mac_address,resource_id,orientation,device_type,plugin,is_production,width,height,notes) VALUES (\"$mac_address\",\"device_display\",\"1\",60,4,\"false\",$width,$height,\"Added by autoregister function\")";
+        $sql_query="INSERT INTO devices(mac_address,resource_id,orientation,device_type,plugin,is_production,only_events,width,height,notes) VALUES (\"$mac_address\",\"device_display\",\"1\",60,4,\"false\",\"false\",$width,$height,\"Added by autoregister function\")";
         if ($mysqli->query($sql_query) === TRUE) {
             require_once("./plugins/simple_text.php");
             returnError($plugins,$config, $mac_address, $voltage, $firmware_version, $width, $height, "Successfully registered unknown MAC address");

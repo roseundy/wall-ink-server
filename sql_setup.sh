@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS \`devices\` (\
   \`notes\` varchar(1000) NOT NULL DEFAULT '',\
   \`height\` int(11) UNSIGNED NOT NULL DEFAULT '480',\
   \`width\` int(11) UNSIGNED NOT NULL DEFAULT '800',\
+  \`qr\` boolean NOT NULL DEFAULT 1,\
+  \`refresh\` int(11) NOT NULL DEFAULT 30,\
   \`is_production\` boolean NOT NULL DEFAULT 1,\
   \`only_events\` boolean NOT NULL DEFAULT 0,\
   PRIMARY KEY (\`device_id\`),\

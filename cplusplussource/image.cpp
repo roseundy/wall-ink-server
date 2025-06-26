@@ -259,7 +259,7 @@ std::vector<reservation> parseReservations(std::string* reservations, bool only_
 }
 
 void checkBattery(int xOffset, int yOffset, float voltage) {
-    if (voltage <= 2.5) {
+    if (voltage <= 3.0) {
         //draw low battery symbol
         drawRect(xOffset, yOffset, 48, 23, 1);
         drawRect(xOffset+2, yOffset+2, 44, 19, 0);
@@ -272,6 +272,9 @@ void checkBattery(int xOffset, int yOffset, float voltage) {
 }
 
 uint32_t setSleepTime(uint32_t increment, int daylightSavingsActive) { //increment is the target number of seconds between refreshes
+    if (increment < 180) {
+    	increment = 180;
+    }
     time_t currentTimeTemp = time(nullptr);
     uint32_t currentTime = currentTimeTemp;
     //if it's daylight savings time, wake up an hour early
@@ -360,6 +363,10 @@ int main(int argc, char* argv[]) {
     getline(fromDB, resourceID);
     std::string only_events;
     getline(fromDB, only_events);
+    std::string qr;
+    getline(fromDB, qr);
+    std::string refresh;
+    getline(fromDB, refresh);
     std::string displayUrl;
     getline(fromDB, displayUrl);
     std::string qrCodeString;
@@ -485,29 +492,25 @@ int main(int argc, char* argv[]) {
 
     //actually generate the desired image
     if (deviceType.compare("0") == 0) {
-        drawImage0(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage0(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("1") == 0) {
-        drawImage1(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage1(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("2") == 0) {
-        drawImage2(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage2(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("3") == 0) {
-        drawImage3(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage3(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("4") == 0) {
-        drawImage4(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage4(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("6") == 0) {
-        drawImage6(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
-    } else if (deviceType.compare("7") == 0) {
-        drawImage7(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage6(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("9") == 0) {
-        drawImage9(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage9(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("10") == 0) {
-        drawImage10(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage10(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("11") == 0) {
-        drawImage11(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage11(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     } else if (deviceType.compare("12") == 0) {
-        drawImage12(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
-    } else if (deviceType.compare("13") == 0) {
-        drawImage13(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events));
+        drawImage12(name, dateNow, timeNow, reservations, stof(voltage), displayUrl, qrCodeString, daylightSavingsActive, tomorrow, no_events, stoi(only_events), stoi(qr), stoi(refresh));
     }
 
     //if orientation is 1, flip image

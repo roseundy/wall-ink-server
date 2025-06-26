@@ -256,10 +256,10 @@ void drawNextEvent(std::vector<reservation> reservs, int currentBlock, int curre
 }
 
 
-//portrait 7", 30 min refresh
-void drawImage0(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+//portrait 7"
+void drawImage0(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
-    setSleepTime(1800, daylightSavingsActive);
+    setSleepTime(refresh * 60, daylightSavingsActive);
 
     uint16_t xres = (rotation == 0 ? x_res : y_res);
     uint16_t yres = (rotation == 0 ? y_res : x_res);
@@ -295,7 +295,6 @@ void drawImage0(std::string roomName, std::string date, std::string time, std::s
 
     //Time
     drawFancyString("Updated " + militaryTimeToNormalPersonTime(time), 32, yres-10);
-    //drawCenteredString(displayUrl, yres-13);
 
     int currentBlock = getCurrentBlock(time);
 
@@ -309,12 +308,10 @@ void drawImage0(std::string roomName, std::string date, std::string time, std::s
     }
 
     canvas->setFont(&FreeSans9pt7b);
-    //canvas->setFont(&FreeMono9pt7b);
     canvas->setTextColor(1);
 
     //For each time of day
     for (int i = 0; i < 32; i++) {
-
         //generate and display time string
         std::ostringstream time;
         std::string ampm = "am";
@@ -391,15 +388,16 @@ void drawImage0(std::string roomName, std::string date, std::string time, std::s
     drawFancyString("Reserved",244,yres-39);
 
     //QR
-    int s = getQrCodeSize(qrCodeString);
-    putQrCode(xres-39-s,yres-39-s,qrCodeString, 2);
+    if (qr) {
+    	int s = getQrCodeSize(qrCodeString);
+    	putQrCode(xres-39-s,yres-39-s,qrCodeString, 2);
+    }
 
     checkBattery(xres-100, yres-100, voltage);
-    //mirror();
 }
 
 //landscape 4", shows 2 appointments
-void drawImage1(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+void drawImage1(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
     setSleepTime(1800, daylightSavingsActive);
 
@@ -449,15 +447,15 @@ void drawImage1(std::string roomName, std::string date, std::string time, std::s
     checkBattery(x_res-64, y_res-44, voltage);
 }
 
-//7" landscape, shows 2 appointments plus blocks & a QR code, 15 min refresh
-void drawImage2(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+//7" landscape, shows 2 appointments plus blocks
+void drawImage2(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
-    setSleepTime(900, daylightSavingsActive);
+    setSleepTime(refresh * 60, daylightSavingsActive);
 
     canvas->setTextColor(1);
     canvas->setTextWrap(false);
 
-    drawRoomDate(roomName, date, displayUrl, qrCodeString, true, false);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, qr, false);
 
     //Get current block
     int currentBlock = getCurrentBlock(time);
@@ -482,10 +480,10 @@ void drawImage2(std::string roomName, std::string date, std::string time, std::s
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
-//7" landscape, shows 3 appointments QR code plus blocks, 15 min update
-void drawImage3(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+//7" landscape, shows 3 appointments
+void drawImage3(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
-    setSleepTime(900, daylightSavingsActive);
+    setSleepTime(refresh * 60, daylightSavingsActive);
 
     canvas->setTextColor(1);
     canvas->setTextWrap(false);
@@ -493,7 +491,7 @@ void drawImage3(std::string roomName, std::string date, std::string time, std::s
     //parse reservations
     std::vector<reservation> reservs = parseReservations(reservations, only_events);
 
-    drawRoomDate(roomName, date, displayUrl, qrCodeString, true, false);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, qr, false);
 
     //Get current block
     int currentBlock = getCurrentBlock(time);
@@ -520,7 +518,7 @@ void drawImage3(std::string roomName, std::string date, std::string time, std::s
 }
 
 //landscape 4", shows 2 appointments
-void drawImage4(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+void drawImage4(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
     setSleepTime(1800, daylightSavingsActive);
 
@@ -668,7 +666,7 @@ void drawImage4(std::string roomName, std::string date, std::string time, std::s
 //layout 5 was for static 7" images, though it is no longer used this way
 
 //landscape 4", shows 2 appointments and has QR code
-void drawImage6(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+void drawImage6(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
     setSleepTime(1800, daylightSavingsActive);
 
@@ -820,42 +818,12 @@ void drawImage6(std::string roomName, std::string date, std::string time, std::s
     checkBattery(x_res-64, y_res-44, voltage);
 }
 
-//7" landscape, shows 2 appointments plus blocks & a QR code, 30 min refresh
-void drawImage7(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) { 
-    //set sleepTime
-    setSleepTime(1800, daylightSavingsActive);
-
-    canvas->setTextColor(1);
-    canvas->setTextWrap(false);
-
-    //parse reservations
-    std::vector<reservation> reservs = parseReservations(reservations, only_events);
-
-    drawRoomDate(roomName, date, displayUrl, qrCodeString, true, false);
-
-    //Get current block
-    int currentBlock = getCurrentBlock(time);
-
-    //Get current event
-    int currentEventIndex = getCurrentEvent(reservs, currentBlock, only_events);
-    
-    if (!no_events) {
-        //Draw current event
-        drawCurrentEvent(reservs, currentBlock, currentEventIndex, 142, true, only_events);
-
-        //Draw next event
-        drawNextEvent(reservs, currentBlock, currentEventIndex, tomorrow, 225, true, only_events);
-    }
-
-    drawBottomMessage(time, true, y_res-60);
-    drawTimeBlocks(reservations, currentBlock, true);
-    checkBattery(x_res-100, y_res-100, voltage);
-}
+//layout 7 was for 7" landscape, shows 2 appointments plus blocks & a QR code, 30 min refresh
 
 //layout 8 was for static 4" images, though it is no longer used this way
 
 //landscape 4", shows 2 appointments and has QR code. More battery efficient than layout 6.
-void drawImage9(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+void drawImage9(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
     setSleepTime(1800, daylightSavingsActive);
 
@@ -1017,15 +985,15 @@ void drawImage9(std::string roomName, std::string date, std::string time, std::s
     checkBattery(x_res-64, y_res-44, voltage);
 }
 
-//7" landscape, shows 2 appointments plus blocks & a QR code, no time
-void drawImage10(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+//7" landscape, shows 2 appointments plus blocks, no time
+void drawImage10(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
-    setSleepTime(1800, daylightSavingsActive);
+    setSleepTime(refresh * 60, daylightSavingsActive);
 
     canvas->setTextColor(1);
     canvas->setTextWrap(false);
 
-    drawRoomDate(roomName, date, displayUrl, qrCodeString, true, false);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, qr, false);
 
     //Get current block
     int currentBlock = getCurrentBlock(time);
@@ -1048,10 +1016,10 @@ void drawImage10(std::string roomName, std::string date, std::string time, std::
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
-//7" landscape, shows 2 appointments plus blocks & a QR code. For events.
-void drawImage11(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) { 
+//7" landscape, shows 2 appointments plus blocks. For events.
+void drawImage11(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) { 
     //set sleepTime
-    setSleepTime(1800, daylightSavingsActive);
+    setSleepTime(refresh * 60, daylightSavingsActive);
 
     canvas->setFont(&FreeSansBold18pt7b);
     canvas->setTextColor(1);
@@ -1060,7 +1028,7 @@ void drawImage11(std::string roomName, std::string date, std::string time, std::
     //parse reservations
     std::vector<reservation> reservs = parseReservations(reservations, only_events);
 
-    drawRoomDate(roomName, date, displayUrl, qrCodeString, true, false);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, qr, false);
 
     //Get current block
     int currentBlock = getCurrentBlock(time);
@@ -1108,15 +1076,15 @@ void drawImage11(std::string roomName, std::string date, std::string time, std::
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
-//7" landscape, shows 2 appointments plus blocks & a QR code, 15 min refresh, no time block
-void drawImage12(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
+//7" landscape, shows 2 appointments plus blocks, no time block
+void drawImage12(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events, bool qr, int refresh) {
     //set sleepTime
-    setSleepTime(900, daylightSavingsActive);
+    setSleepTime(refresh * 60, daylightSavingsActive);
 
     canvas->setTextColor(1);
     canvas->setTextWrap(false);
 
-    drawRoomDate(roomName, date, displayUrl, qrCodeString, true, false);
+    drawRoomDate(roomName, date, displayUrl, qrCodeString, qr, false);
 
     //Get current block
     int currentBlock = getCurrentBlock(time);
@@ -1139,41 +1107,4 @@ void drawImage12(std::string roomName, std::string date, std::string time, std::
     checkBattery(x_res-100, y_res-100, voltage);
 }
 
-//7" landscape, shows 3 appointments QR code plus blocks, 30 min update
-void drawImage13(std::string roomName, std::string date, std::string time, std::string* reservations, float voltage, std::string displayUrl, std::string qrCodeString, int daylightSavingsActive, reservation tomorrow, bool no_events, bool only_events) {
-    //set sleepTime
-    setSleepTime(1800, daylightSavingsActive);
-
-    canvas->setTextColor(1);
-    canvas->setTextWrap(false);
-
-    //parse reservations
-    std::vector<reservation> reservs = parseReservations(reservations, only_events);
-
-    drawRoomDate(roomName, date, displayUrl, qrCodeString, true, false);
-
-    //Get current block
-    int currentBlock = getCurrentBlock(time);
-
-    //Get current event
-    int currentEventIndex = getCurrentEvent(reservs, currentBlock, only_events);
-    
-    if (!no_events) {
-        //Draw current event
-        drawCurrentEvent(reservs, currentBlock, currentEventIndex, 142, true, only_events);
-
-        //Draw next event
-        drawNextEvent(reservs, currentBlock, currentEventIndex, tomorrow, 225, true, only_events);
-
-        //Draw next next event
-        if (reservs.size() > currentEventIndex+1) {
-            drawNextEvent(reservs, currentBlock, currentEventIndex+1, tomorrow, 330, false, only_events);
-        }
-    }
-
-    drawBottomMessage(time, true, y_res-60);
-    drawTimeBlocks(reservations, currentBlock, true);
-    checkBattery(x_res-100, y_res-100, voltage);
-}
-
-
+// layout 13 was for 7" landscape, shows 3 appointments QR code plus blocks, 30 min update

@@ -22,6 +22,8 @@
             "width" => 800,
             "height" => 480,
             "plugin" => 0,
+            "qr" => true,
+            "refresh" => 30,
             "is_production" => true,
             "only_events" => false,
             "notes" => ""
@@ -58,6 +60,10 @@
         echo "<div class=\"field\">";
             echo "<label for=\"new_height\">Height:</label>";
             echo "<input type=\"text\" id=\"height\" name=\"new_height\" value=\"$device[height]\">";
+        echo "</div>";
+        echo "<div class=\"field\">";
+            echo "<label for=\"new_refresh\">Refresh (minutes):</label>";
+            echo "<input type=\"text\" id=\"refresh\" name=\"new_refresh\" value=\"$device[refresh]\">";
         echo "</div>";
         echo "<div class=\"field\">";
             echo "<label for=\"new_plugin\">Plugin:</label>";
@@ -119,6 +125,27 @@
                     echo "<label for=\"up-side_down\">Up-Side Down</label>";
                     echo "<input type=\"radio\" id=\"orientation_1\" name=\"new_orientation\" value=\"1\"";
                     if ($device['orientation'] == 1) {
+                        echo " checked";
+                    }
+                    echo ">";
+                echo "</li>";
+            echo "</ul>";
+        echo "</fieldset>";
+        echo "<fieldset id=\"qr\" class=\"field\">";
+            echo "<legend>Show QR code:</legend>";
+            echo "<ul>";
+                echo "<li>";
+                    echo "<label for=\"true\">True</label>";
+                    echo "<input type=\"radio\" id=\"qr\" name=\"new_qr\" value=\"true\"";
+                    if ($device['qr'] == true) {
+                        echo " checked";
+                    }
+                    echo ">";
+                echo "</li>";
+                echo "<li>";
+                    echo "<label for=\"false\">False</label>";
+                    echo "<input type=\"radio\" id=\"qr\" name=\"new_qr\" value=\"false\"";
+                    if ($device['qr'] == false) {
                         echo " checked";
                     }
                     echo ">";

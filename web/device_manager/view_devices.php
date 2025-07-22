@@ -131,7 +131,10 @@ function printResult($devices, $rooms, $plugins) {
         echo "</td>";
         if (file_exists("../log/errors.log")) {
             echo "<td class=\"recent_errors";
-            $recentErrors = $errorLogs[$device['mac_address']];
+	    $recentErrors = 0;
+	    if (array_key_exists($device['mac_address'], $errorLogs)) {
+            	$recentErrors = $errorLogs[$device['mac_address']];
+            }
             if ($recentErrors > 5 && $device['is_production']) {
                 echo " orange";
             }

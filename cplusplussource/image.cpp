@@ -259,7 +259,7 @@ std::vector<reservation> parseReservations(std::string* reservations, bool only_
 }
 
 void checkBattery(int xOffset, int yOffset, float voltage) {
-    if (voltage <= 3.0) {
+    if (voltage <= 3.2) {
         //draw low battery symbol
         drawRect(xOffset, yOffset, 48, 23, 1);
         drawRect(xOffset+2, yOffset+2, 44, 19, 0);
